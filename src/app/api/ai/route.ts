@@ -59,10 +59,17 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return Response.json({
-    status: "operational",
-    mode: isGeminiAvailable() ? "gemini-live" : "fallback",
-    model: isGeminiAvailable() ? "gemini-2.0-flash" : "rule-based-fallback",
-    timestamp: new Date().toISOString(),
-  });
+  return Response.json(
+    {
+      status: "operational",
+      mode: isGeminiAvailable() ? "gemini-live" : "fallback",
+      model: isGeminiAvailable() ? "gemini-2.0-flash" : "rule-based-fallback",
+      timestamp: new Date().toISOString(),
+    },
+    {
+      headers: {
+        "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+      },
+    }
+  );
 }

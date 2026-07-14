@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
 import { StadiumZone, TelemetryEvent, AIIncidentResponse } from "@/lib/types";
 import { STADIUM_ZONES } from "@/data/stadium";
 import { classifyEventType, classifySeverity } from "@/lib/classify";
@@ -15,11 +15,24 @@ import Header from "./Header";
 import ZoneCard from "./ZoneCard";
 import StadiumMap from "./StadiumMap";
 import AlertPanel from "./AlertPanel";
-import AIConsole from "./AIConsole";
-import AnnouncementBar from "./AnnouncementBar";
-import ManualTrigger from "./ManualTrigger";
-import AnalyticsPanel from "./AnalyticsPanel";
-import MatchTimeline from "./MatchTimeline";
+
+// Lazy-loaded components for code splitting and faster initial load
+const AIConsole = lazy(() => import("./AIConsole"));
+const AnnouncementBar = lazy(() => import("./AnnouncementBar"));
+const ManualTrigger = lazy(() => import("./ManualTrigger"));
+const AnalyticsPanel = lazy(() => import("./AnalyticsPanel"));
+const MatchTimeline = lazy(() => import("./MatchTimeline"));
+
+/** Minimal loading placeholder for lazy-loaded panels */
+function PanelSkeleton() {
+  return (
+    <div className="glass-panel p-6 animate-pulse">
+      <div className="h-4 bg-slate-700/50 rounded w-1/3 mb-3" />
+      <div className="h-3 bg-slate-700/30 rounded w-2/3 mb-2" />
+      <div className="h-3 bg-slate-700/30 rounded w-1/2" />
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [zones, setZones] = useState<StadiumZone[]>(STADIUM_ZONES);
@@ -165,16 +178,20 @@ export default function Dashboard() {
     };
   }, [analyzeEvent]);
 
-  const handleZoneClick = (zoneId: string) => {
-    setSelectedZoneId(zoneId === selectedZoneId ? null : zoneId);
-  };
+  const handleZoneClick = useCallback((zoneId: string) => {
+    setSelectedZoneId((prev) => (zoneId === prev ? null : zoneId));
+  }, []);
 
-  const totalOccupancy = zones.reduce((sum, z) => sum + z.currentOccupancy, 0);
-  const totalCapacity = zones.reduce((sum, z) => sum + z.capacity, 0);
-  const criticalZones = zones.filter((z) => z.status === "critical").length;
-  const avgWaitTime = Math.round(
-    zones.reduce((sum, z) => sum + z.waitTimeMinutes, 0) / zones.length
-  );
+  // Memoize derived statistics to avoid recalculation on every render
+  const { totalOccupancy, totalCapacity, criticalZones, avgWaitTime } = useMemo(() => {
+    const total = zones.reduce((sum, z) => sum + z.currentOccupancy, 0);
+    const capacity = zones.reduce((sum, z) => sum + z.capacity, 0);
+    const critical = zones.filter((z) => z.status === "critical").length;
+    const avgWait = Math.round(
+      zones.reduce((sum, z) => sum + z.waitTimeMinutes, 0) / zones.length
+    );
+    return { totalOccupancy: total, totalCapacity: capacity, criticalZones: critical, avgWaitTime: avgWait };
+  }, [zones]);
 
   return (
     <div className="relative min-h-screen bg-slate-950 bg-grid overflow-hidden">
@@ -308,19 +325,29 @@ export default function Dashboard() {
 
           {/* Center-Left: Demo Control + Analytics */}
           <div className="lg:col-span-3 space-y-4">
-            <ManualTrigger
-              zones={zones}
-              onTrigger={handleManualTrigger}
-              isProcessing={isAiLoading}
-            />
-            <AnalyticsPanel events={events} responses={aiResponses} />
-            <MatchTimeline events={events} />
+            <Suspense fallback={<PanelSkeleton />}>
+              <ManualTrigger
+                zones={zones}
+                onTrigger={handleManualTrigger}
+                isProcessing={isAiLoading}
+              />
+            </Suspense>
+            <Suspense fallback={<PanelSkeleton />}>
+              <AnalyticsPanel events={events} responses={aiResponses} />
+            </Suspense>
+            <Suspense fallback={<PanelSkeleton />}>
+              <MatchTimeline events={events} />
+            </Suspense>
           </div>
 
           {/* Center: AI Console + Announcements */}
           <div className="lg:col-span-4 space-y-4">
-            <AnnouncementBar latestAnnouncement={latestAnnouncement} />
-            <AIConsole responses={aiResponses} isLoading={isAiLoading} />
+            <Suspense fallback={<PanelSkeleton />}>
+              <AnnouncementBar latestAnnouncement={latestAnnouncement} />
+            </Suspense>
+            <Suspense fallback={<PanelSkeleton />}>
+              <AIConsole responses={aiResponses} isLoading={isAiLoading} />
+            </Suspense>
           </div>
 
           {/* Right: Alert Feed */}

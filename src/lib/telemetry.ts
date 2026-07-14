@@ -1,6 +1,16 @@
 import { TelemetryEvent, StadiumZone } from "./types";
 import { STADIUM_ZONES, EVENT_SCENARIOS } from "@/data/stadium";
 
+/**
+ * Telemetry event generator module.
+ *
+ * Simulates realistic stadium telemetry by generating random events
+ * from scenario templates and updating zone state accordingly. Used by
+ * the SSE stream to provide real-time data to the dashboard.
+ *
+ * @module telemetry
+ */
+
 let eventCounter = 0;
 
 function randomChoice<T>(arr: T[]): T {
@@ -19,6 +29,15 @@ function fillTemplate(template: string, vars: Record<string, string | number>): 
   return result;
 }
 
+/**
+ * Generate a simulated telemetry event and update zone state.
+ *
+ * Picks a random scenario and zone, fills a template with realistic values,
+ * and computes the resulting zone status changes (occupancy, wait time, status).
+ *
+ * @param zones - Current state of all stadium zones
+ * @returns Object containing the new event and updated zone array
+ */
 export function generateTelemetryEvent(zones: StadiumZone[]): {
   event: TelemetryEvent;
   updatedZones: StadiumZone[];
@@ -113,6 +132,14 @@ export function generateTelemetryEvent(zones: StadiumZone[]): {
   return { event, updatedZones };
 }
 
+/**
+ * Generate initial zone state with randomized occupancy.
+ *
+ * Creates a fresh set of zones with normal status and moderate
+ * occupancy levels, used when the SSE stream starts or resets.
+ *
+ * @returns Array of stadium zones with randomized initial values
+ */
 export function generateInitialZones(): StadiumZone[] {
   return STADIUM_ZONES.map((z) => ({
     ...z,

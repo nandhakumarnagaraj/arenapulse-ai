@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { StadiumZone } from "@/lib/types";
 
 interface StadiumMapProps {
@@ -23,7 +24,7 @@ const statusColors = {
   critical: { fill: "#dc2626", stroke: "#ef4444", text: "text-red-400" },
 };
 
-export default function StadiumMap({ zones, selectedZoneId, onZoneClick }: StadiumMapProps) {
+export default React.memo(function StadiumMap({ zones, selectedZoneId, onZoneClick }: StadiumMapProps) {
   return (
     <div className="glass-panel p-4">
       <div className="flex items-center justify-between mb-3">
@@ -170,4 +171,4 @@ export default function StadiumMap({ zones, selectedZoneId, onZoneClick }: Stadi
       </div>
     </div>
   );
-}
+});

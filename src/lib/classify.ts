@@ -1,5 +1,15 @@
 import { TelemetryEvent, Severity } from "./types";
 
+/**
+ * Event classification module.
+ *
+ * Provides a single source of truth for keyword-based event type
+ * and severity classification, used by both the manual trigger UI
+ * and the AI fallback response engine.
+ *
+ * @module classify
+ */
+
 type EventType = TelemetryEvent["eventType"];
 
 /**

@@ -3,6 +3,15 @@ import { AIIncidentResponse } from "./types";
 import { REROUTING_SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
 import { classifyEventType } from "./classify";
 
+/**
+ * Gemini AI integration module.
+ *
+ * Provides incident analysis using Google Gemini 2.0 Flash with
+ * automatic fallback to rule-based responses when the API is unavailable.
+ *
+ * @module gemini
+ */
+
 const hasApiKey = !!process.env.GEMINI_API_KEY;
 const genAI = hasApiKey
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
@@ -203,6 +212,17 @@ function generateFallbackResponse(
   };
 }
 
+/**
+ * Analyze a stadium incident using Gemini AI or fallback rules.
+ *
+ * Sends the event description and current zone context to Gemini 2.0 Flash
+ * for structured analysis. Falls back to keyword-based rule matching when
+ * the API key is not configured or the request fails.
+ *
+ * @param eventDescription - Natural language description of the incident
+ * @param zoneContext - Current status summary of all stadium zones
+ * @returns Structured incident response with rerouting, volunteers, and announcements
+ */
 export async function analyzeIncident(
   eventDescription: string,
   zoneContext: string
@@ -234,6 +254,10 @@ export async function analyzeIncident(
   }
 }
 
+/**
+ * Check if the Gemini API key is configured and available.
+ * @returns true if GEMINI_API_KEY environment variable is set
+ */
 export function isGeminiAvailable(): boolean {
   return hasApiKey;
 }
