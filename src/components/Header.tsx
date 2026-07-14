@@ -4,18 +4,23 @@ import { useState, useEffect } from "react";
 import { MATCH_INFO } from "@/data/stadium";
 
 function useCountdown(targetDate: string) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: false });
 
   useEffect(() => {
     const target = new Date(targetDate).getTime();
     const tick = () => {
       const now = Date.now();
-      const diff = Math.max(0, target - now);
+      const diff = target - now;
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPast: true });
+        return;
+      }
       setTimeLeft({
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
         hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((diff / (1000 * 60)) % 60),
         seconds: Math.floor((diff / 1000) % 60),
+        isPast: false,
       });
     };
     tick();
@@ -76,27 +81,33 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Countdown + Status */}
+          {/* Countdown */}
           <div className="flex items-center gap-4">
             {/* Countdown */}
-            <div className="hidden sm:flex items-center gap-1.5">
-              {[
-                { value: countdown.days, label: "D" },
-                { value: countdown.hours, label: "H" },
-                { value: countdown.minutes, label: "M" },
-                { value: countdown.seconds, label: "S" },
-              ].map((item, i) => (
-                <div key={item.label} className="flex items-center gap-1.5">
-                  <div className="bg-slate-800/80 border border-slate-700/50 rounded-lg px-2 py-1 min-w-[36px] text-center">
-                    <p className="text-sm font-bold text-white font-mono">
-                      {String(item.value).padStart(2, "0")}
-                    </p>
-                    <p className="text-[8px] text-slate-500 -mt-0.5">{item.label}</p>
+            {countdown.isPast ? (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <span className="text-emerald-300 text-xs font-bold">⚽ MATCH IN PROGRESS</span>
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-1.5">
+                {[
+                  { value: countdown.days, label: "D" },
+                  { value: countdown.hours, label: "H" },
+                  { value: countdown.minutes, label: "M" },
+                  { value: countdown.seconds, label: "S" },
+                ].map((item, i) => (
+                  <div key={item.label} className="flex items-center gap-1.5">
+                    <div className="bg-slate-800/80 border border-slate-700/50 rounded-lg px-2 py-1 min-w-[36px] text-center">
+                      <p className="text-sm font-bold text-white font-mono">
+                        {String(item.value).padStart(2, "0")}
+                      </p>
+                      <p className="text-[8px] text-slate-500 -mt-0.5">{item.label}</p>
+                    </div>
+                    {i < 3 && <span className="text-slate-600 text-xs">:</span>}
                   </div>
-                  {i < 3 && <span className="text-slate-600 text-xs">:</span>}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {/* Live Indicator */}
             <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">

@@ -80,7 +80,7 @@ export default function AlertPanel({ events }: AlertPanelProps) {
           </div>
         ) : (
           <div className="divide-y divide-slate-700/20">
-            {[...events].reverse().map((event, idx) => {
+            {events.map((event, idx) => {
               const style = severityStyles[event.severity];
               const typeInfo = eventTypeLabels[event.eventType] || { label: event.eventType, icon: "❓" };
               return (

@@ -66,7 +66,7 @@ export default function AIConsole({ responses, isLoading }: AIConsoleProps) {
           </div>
         ) : (
           <div className="divide-y divide-slate-700/20">
-            {[...responses].reverse().map((response) => (
+            {responses.map((response) => (
               <div key={response.incidentId} className="p-4 space-y-3 hover:bg-slate-800/20 transition-colors">
                 {/* Header */}
                 <div className="flex items-center justify-between">

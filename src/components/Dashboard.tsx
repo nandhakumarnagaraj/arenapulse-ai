@@ -3,6 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { StadiumZone, TelemetryEvent, AIIncidentResponse } from "@/lib/types";
 import { STADIUM_ZONES } from "@/data/stadium";
+import { classifyEventType, classifySeverity } from "@/lib/classify";
+import {
+  MAX_EVENT_HISTORY,
+  MAX_AI_RESPONSE_HISTORY,
+  MAX_PROCESSED_EVENT_IDS,
+  PROCESSED_EVENT_IDS_TRIM_TARGET,
+  SSE_RECONNECT_DELAY_MS,
+} from "@/lib/constants";
 import Header from "./Header";
 import ZoneCard from "./ZoneCard";
 import StadiumMap from "./StadiumMap";
@@ -35,8 +43,8 @@ export default function Dashboard() {
     if (processedEventIds.current.has(event.id)) return;
     if (event.severity === "INFO") return;
     processedEventIds.current.add(event.id);
-    if (processedEventIds.current.size > 200) {
-      processedEventIds.current = new Set([...processedEventIds.current].slice(-150));
+    if (processedEventIds.current.size > MAX_PROCESSED_EVENT_IDS) {
+      processedEventIds.current = new Set([...processedEventIds.current].slice(-PROCESSED_EVENT_IDS_TRIM_TARGET));
     }
 
     setIsAiLoading(true);
@@ -57,7 +65,7 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         const aiResponse = data as AIIncidentResponse & { _meta?: { mode: string } };
-        setAiResponses((prev) => [aiResponse, ...prev].slice(0, 20));
+        setAiResponses((prev) => [aiResponse, ...prev].slice(0, MAX_AI_RESPONSE_HISTORY));
         setLatestAnnouncement(aiResponse.publicAnnouncements);
         if (aiResponse._meta?.mode) {
           setAiMode(aiResponse._meta.mode as "gemini-live" | "fallback");
@@ -75,19 +83,9 @@ export default function Dashboard() {
       id: `MANUAL-${Date.now()}`,
       timestamp: new Date().toISOString(),
       zoneId,
-      eventType: description.toLowerCase().includes("turnstile") || description.toLowerCase().includes("gate")
-        ? "gate_failure"
-        : description.toLowerCase().includes("transit") || description.toLowerCase().includes("train")
-          ? "transit_delay"
-          : description.toLowerCase().includes("weather") || description.toLowerCase().includes("lightning")
-            ? "weather_alert"
-            : description.toLowerCase().includes("medical") || description.toLowerCase().includes("ems")
-              ? "medical"
-              : "crowd_spike",
+      eventType: classifyEventType(description),
       description,
-      severity: description.toLowerCase().includes("crash") || description.toLowerCase().includes("medical") || description.toLowerCase().includes("emergency")
-        ? "CRITICAL"
-        : "WARNING",
+      severity: classifySeverity(description),
       metrics: {
         density: Math.floor(Math.random() * 30) + 70,
         waitTime: Math.floor(Math.random() * 30) + 10,
@@ -95,7 +93,7 @@ export default function Dashboard() {
       },
     };
 
-    setEvents((prev) => [manualEvent, ...prev].slice(0, 50));
+    setEvents((prev) => [manualEvent, ...prev].slice(0, MAX_EVENT_HISTORY));
     await analyzeEvent(manualEvent, zones);
   }, [analyzeEvent, zones]);
 
@@ -123,14 +121,14 @@ export default function Dashboard() {
 
           if (data.event && data.zones) {
             setZones(data.zones);
-            setEvents((prev) => [data.event, ...prev].slice(0, 50));
+            setEvents((prev) => [data.event, ...prev].slice(0, MAX_EVENT_HISTORY));
 
             if (data.event.severity !== "INFO") {
               analyzeEvent(data.event, data.zones);
             }
           }
-        } catch {
-          // Skip malformed messages
+        } catch (err) {
+          console.error("SSE message parse error:", err);
         }
       };
 
@@ -142,7 +140,7 @@ export default function Dashboard() {
         }
         reconnectTimeoutRef.current = setTimeout(() => {
           connectSSE();
-        }, 3000);
+        }, SSE_RECONNECT_DELAY_MS);
       };
     }
 

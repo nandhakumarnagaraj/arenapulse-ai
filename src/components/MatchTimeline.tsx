@@ -8,14 +8,13 @@ interface MatchTimelineProps {
 }
 
 const matchPhases = [
-  { label: "Pre-Match", startMin: -60, icon: "🏟️" },
   { label: "Gates Open", startMin: -120, icon: "🚪" },
-  { label: "Kickoff", startMin: 0, icon: "⚽" },
-  { label: "First Half", startMin: 0, icon: "⏱️" },
+  { label: "Pre-Match", startMin: -60, icon: "🏟️" },
+  { label: "First Half", startMin: 0, icon: "⚽" },
   { label: "Halftime", startMin: 45, icon: "☕" },
-  { label: "Second Half", startMin: 45, icon: "⏱️" },
+  { label: "Second Half", startMin: 50, icon: "⏱️" },
   { label: "Full Time", startMin: 90, icon: "🏁" },
-  { label: "Post-Match", startMin: 90, icon: "🎉" },
+  { label: "Post-Match", startMin: 105, icon: "🎉" },
 ];
 
 export default function MatchTimeline({ events }: MatchTimelineProps) {
@@ -24,16 +23,18 @@ export default function MatchTimeline({ events }: MatchTimelineProps) {
   const minutesSinceKickoff = Math.floor((now.getTime() - matchStart.getTime()) / 60000);
 
   const currentPhase = minutesSinceKickoff < -120
-    ? matchPhases[0]
+    ? matchPhases[0]  // Gates Open
     : minutesSinceKickoff < 0
-      ? matchPhases[1]
+      ? matchPhases[1]  // Pre-Match
       : minutesSinceKickoff < 45
-        ? matchPhases[3]
+        ? matchPhases[2]  // First Half
         : minutesSinceKickoff < 50
-          ? matchPhases[4]
+          ? matchPhases[3]  // Halftime
           : minutesSinceKickoff < 90
-            ? matchPhases[5]
-            : matchPhases[7];
+            ? matchPhases[4]  // Second Half
+            : minutesSinceKickoff < 105
+              ? matchPhases[5]  // Full Time
+              : matchPhases[6]; // Post-Match
 
   const displayMinute = Math.max(0, minutesSinceKickoff);
 
@@ -77,7 +78,7 @@ export default function MatchTimeline({ events }: MatchTimelineProps) {
             <p className="text-xs text-slate-600 text-center py-3">No events yet — match is quiet</p>
           ) : (
             <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-              {[...events].slice(0, 10).map((event, idx) => {
+              {events.slice(0, 10).map((event, idx) => {
                 const eventTime = new Date(event.timestamp);
                 const minsAgo = Math.floor((now.getTime() - eventTime.getTime()) / 60000);
                 const severityColor =

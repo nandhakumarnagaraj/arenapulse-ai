@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AIIncidentResponse } from "./types";
 import { REROUTING_SYSTEM_PROMPT, buildUserPrompt } from "./prompts";
+import { classifyEventType } from "./classify";
 
 const hasApiKey = !!process.env.GEMINI_API_KEY;
 const genAI = hasApiKey
@@ -179,18 +180,9 @@ function generateFallbackResponse(
   eventDescription: string,
   zoneContext: string
 ): AIIncidentResponse {
-  const desc = eventDescription.toLowerCase();
-  let matchedType = "crowd_spike";
-
-  if (desc.includes("turnstile") || desc.includes("gate") || desc.includes("scanner") || desc.includes("power outage")) {
-    matchedType = "gate_failure";
-  } else if (desc.includes("transit") || desc.includes("train") || desc.includes("bus") || desc.includes("delay")) {
-    matchedType = "transit_delay";
-  } else if (desc.includes("weather") || desc.includes("lightning") || desc.includes("wind") || desc.includes("rain")) {
-    matchedType = "weather_alert";
-  } else if (desc.includes("medical") || desc.includes("emergency") || desc.includes("ems") || desc.includes("heat")) {
-    matchedType = "medical";
-  }
+  const classified = classifyEventType(eventDescription);
+  // Map "normal" to "crowd_spike" for fallback (normal events shouldn't hit this path)
+  const matchedType = classified === "normal" ? "crowd_spike" : classified;
 
   const template = FALLBACK_RESPONSES[matchedType];
   const affectedZone = zoneContext.split("\n").find((l) => l.includes("critical") || l.includes("elevated"))?.split(":")[0]?.trim() || "Unknown Zone";

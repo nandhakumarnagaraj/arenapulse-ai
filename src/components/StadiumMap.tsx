@@ -84,6 +84,15 @@ export default function StadiumMap({ zones, selectedZoneId, onZoneClick }: Stadi
                 key={zone.id}
                 onClick={() => onZoneClick(zone.id)}
                 className="cursor-pointer"
+                role="button"
+                aria-label={`${zone.name}: ${zone.status} status, ${occupancyPercent}% occupancy, ${zone.waitTimeMinutes} minute wait`}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onZoneClick(zone.id);
+                  }
+                }}
               >
                 <rect
                   x={pos.x}
