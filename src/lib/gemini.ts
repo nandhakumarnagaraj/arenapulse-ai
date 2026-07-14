@@ -21,6 +21,42 @@ function cleanJsonOutput(raw: string): string {
   return trimmed;
 }
 
+function sanitizeResponse(
+  parsed: Partial<AIIncidentResponse> & Record<string, unknown>
+): AIIncidentResponse {
+  const announcements = (parsed.publicAnnouncements ?? {}) as Partial<AIIncidentResponse["publicAnnouncements"]>;
+  const rerouting = (parsed.reroutingAction ?? {}) as Partial<AIIncidentResponse["reroutingAction"]>;
+  const volunteer = (parsed.volunteerDeployment ?? {}) as Partial<AIIncidentResponse["volunteerDeployment"]>;
+
+  return {
+    incidentId: String(parsed.incidentId ?? `INC-${Date.now().toString(36).toUpperCase()}`),
+    severity: (["CRITICAL", "WARNING", "INFO"].includes(parsed.severity as string)
+      ? parsed.severity
+      : "WARNING") as AIIncidentResponse["severity"],
+    affectedZone: String(parsed.affectedZone ?? "Unknown Zone"),
+    rootCause: String(parsed.rootCause ?? "Root cause undetermined."),
+    operationalImpact: String(parsed.operationalImpact ?? "Operational impact under assessment."),
+    reroutingAction: {
+      triggerDynamicRerouting: Boolean(rerouting.triggerDynamicRerouting),
+      divertFrom: String(rerouting.divertFrom ?? "Affected area"),
+      divertTo: String(rerouting.divertTo ?? "Adjacent lower-density area"),
+      routingInstructions: String(rerouting.routingInstructions ?? "Redirect traffic away from the affected area."),
+    },
+    volunteerDeployment: {
+      actionRequired: Boolean(volunteer.actionRequired),
+      quantityToDeploy: Number(volunteer.quantityToDeploy ?? 0) || 0,
+      targetLocation: String(volunteer.targetLocation ?? "Affected area"),
+      briefingMessage: String(volunteer.briefingMessage ?? "Assist with crowd management and wayfinding."),
+    },
+    publicAnnouncements: {
+      en: String(announcements.en ?? "Please follow staff instructions."),
+      es: String(announcements.es ?? "Por favor, siga las instrucciones del personal."),
+      fr: String(announcements.fr ?? "Veuillez suivre les instructions du personnel."),
+    },
+    timestamp: new Date().toISOString(),
+  };
+}
+
 const FALLBACK_RESPONSES: Record<string, Omit<AIIncidentResponse, "incidentId" | "timestamp">> = {
   gate_failure: {
     severity: "CRITICAL",
@@ -185,7 +221,7 @@ export async function analyzeIncident(
 
   try {
     const model = genAI.getGenerativeModel({
-      model: "gemini-flash-latest",
+      model: "gemini-2.0-flash",
       systemInstruction: REROUTING_SYSTEM_PROMPT,
       generationConfig: {
         temperature: 0.3,
@@ -198,9 +234,8 @@ export async function analyzeIncident(
     const response = result.response;
     const rawText = response.text();
     const cleanedJson = cleanJsonOutput(rawText);
-    const parsed = JSON.parse(cleanedJson) as AIIncidentResponse;
-    parsed.timestamp = new Date().toISOString();
-    return parsed;
+    const parsed = JSON.parse(cleanedJson);
+    return sanitizeResponse(parsed);
   } catch (error) {
     console.error("Gemini API error:", error instanceof Error ? error.message : error);
     return generateFallbackResponse(eventDescription, zoneContext);

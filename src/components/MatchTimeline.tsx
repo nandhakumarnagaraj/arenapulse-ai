@@ -1,6 +1,7 @@
 "use client";
 
 import { TelemetryEvent } from "@/lib/types";
+import { MATCH_INFO } from "@/data/stadium";
 
 interface MatchTimelineProps {
   events: TelemetryEvent[];
@@ -19,8 +20,7 @@ const matchPhases = [
 
 export default function MatchTimeline({ events }: MatchTimelineProps) {
   const now = new Date();
-  const matchStart = new Date(now);
-  matchStart.setHours(20, 0, 0, 0);
+  const matchStart = new Date(MATCH_INFO.kickoffTime);
   const minutesSinceKickoff = Math.floor((now.getTime() - matchStart.getTime()) / 60000);
 
   const currentPhase = minutesSinceKickoff < -120

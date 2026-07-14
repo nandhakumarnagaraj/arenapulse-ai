@@ -26,13 +26,13 @@ export default function AnalyticsPanel({ events, responses }: AnalyticsPanelProp
     0
   );
 
-  const eventTypes: Record<string, { label: string; icon: string; color: string }> = {
-    gate_failure: { label: "Gate Failures", icon: "🚧", color: "text-red-400" },
-    crowd_spike: { label: "Crowd Surges", icon: "👥", color: "text-amber-400" },
-    transit_delay: { label: "Transit Delays", icon: "🚇", color: "text-blue-400" },
-    weather_alert: { label: "Weather Alerts", icon: "⛈️", color: "text-purple-400" },
-    medical: { label: "Medical", icon: "🏥", color: "text-pink-400" },
-    normal: { label: "Routine", icon: "📋", color: "text-slate-400" },
+  const eventTypes: Record<string, { label: string; icon: string; textColor: string; barColor: string }> = {
+    gate_failure: { label: "Gate Failures", icon: "🚧", textColor: "text-red-400", barColor: "bg-red-400" },
+    crowd_spike: { label: "Crowd Surges", icon: "👥", textColor: "text-amber-400", barColor: "bg-amber-400" },
+    transit_delay: { label: "Transit Delays", icon: "🚇", textColor: "text-blue-400", barColor: "bg-blue-400" },
+    weather_alert: { label: "Weather Alerts", icon: "⛈️", textColor: "text-purple-400", barColor: "bg-purple-400" },
+    medical: { label: "Medical", icon: "🏥", textColor: "text-pink-400", barColor: "bg-pink-400" },
+    normal: { label: "Routine", icon: "📋", textColor: "text-slate-400", barColor: "bg-slate-400" },
   };
 
   return (
@@ -72,15 +72,15 @@ export default function AnalyticsPanel({ events, responses }: AnalyticsPanelProp
             {Object.entries(eventTypeBreakdown)
               .sort(([, a], [, b]) => b - a)
               .map(([type, count]) => {
-                const info = eventTypes[type] || { label: type, icon: "❓", color: "text-slate-400" };
+                const info = eventTypes[type] || { label: type, icon: "❓", textColor: "text-slate-400", barColor: "bg-slate-400" };
                 const percent = events.length > 0 ? Math.round((count / events.length) * 100) : 0;
                 return (
                   <div key={type} className="flex items-center gap-2">
                     <span className="text-xs">{info.icon}</span>
-                    <span className={`text-[11px] flex-1 ${info.color}`}>{info.label}</span>
+                    <span className={`text-[11px] flex-1 ${info.textColor}`}>{info.label}</span>
                     <div className="w-20 bg-slate-700/50 rounded-full h-1.5">
                       <div
-                        className={`h-1.5 rounded-full ${info.color.replace("text-", "bg-")}`}
+                        className={`h-1.5 rounded-full ${info.barColor}`}
                         style={{ width: `${percent}%` }}
                       />
                     </div>

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       ...response,
       _meta: {
         mode: isGeminiAvailable() ? "gemini-live" : "fallback",
-        model: isGeminiAvailable() ? "gemini-flash-latest" : "rule-based",
+        model: isGeminiAvailable() ? "gemini-2.0-flash" : "rule-based",
       },
     });
   } catch (error) {
@@ -36,7 +36,7 @@ export async function GET() {
   return Response.json({
     status: "operational",
     mode: isGeminiAvailable() ? "gemini-live" : "fallback",
-    model: isGeminiAvailable() ? "gemini-flash-latest" : "rule-based-fallback",
+    model: isGeminiAvailable() ? "gemini-2.0-flash" : "rule-based-fallback",
     timestamp: new Date().toISOString(),
   });
 }

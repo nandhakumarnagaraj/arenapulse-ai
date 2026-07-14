@@ -35,6 +35,9 @@ export default function Dashboard() {
     if (processedEventIds.current.has(event.id)) return;
     if (event.severity === "INFO") return;
     processedEventIds.current.add(event.id);
+    if (processedEventIds.current.size > 200) {
+      processedEventIds.current = new Set([...processedEventIds.current].slice(-150));
+    }
 
     setIsAiLoading(true);
     try {
