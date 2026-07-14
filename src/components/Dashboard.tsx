@@ -9,6 +9,9 @@ import StadiumMap from "./StadiumMap";
 import AlertPanel from "./AlertPanel";
 import AIConsole from "./AIConsole";
 import AnnouncementBar from "./AnnouncementBar";
+import ManualTrigger from "./ManualTrigger";
+import AnalyticsPanel from "./AnalyticsPanel";
+import MatchTimeline from "./MatchTimeline";
 
 export default function Dashboard() {
   const [zones, setZones] = useState<StadiumZone[]>(STADIUM_ZONES);
@@ -63,6 +66,35 @@ export default function Dashboard() {
       setIsAiLoading(false);
     }
   }, []);
+
+  const handleManualTrigger = useCallback(async (description: string, zoneId: string) => {
+    const manualEvent: TelemetryEvent = {
+      id: `MANUAL-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      zoneId,
+      eventType: description.toLowerCase().includes("turnstile") || description.toLowerCase().includes("gate")
+        ? "gate_failure"
+        : description.toLowerCase().includes("transit") || description.toLowerCase().includes("train")
+          ? "transit_delay"
+          : description.toLowerCase().includes("weather") || description.toLowerCase().includes("lightning")
+            ? "weather_alert"
+            : description.toLowerCase().includes("medical") || description.toLowerCase().includes("ems")
+              ? "medical"
+              : "crowd_spike",
+      description,
+      severity: description.toLowerCase().includes("crash") || description.toLowerCase().includes("medical") || description.toLowerCase().includes("emergency")
+        ? "CRITICAL"
+        : "WARNING",
+      metrics: {
+        density: Math.floor(Math.random() * 30) + 70,
+        waitTime: Math.floor(Math.random() * 30) + 10,
+        flowRate: Math.floor(Math.random() * 40) + 20,
+      },
+    };
+
+    setEvents((prev) => [manualEvent, ...prev].slice(0, 50));
+    await analyzeEvent(manualEvent, zones);
+  }, [analyzeEvent, zones]);
 
   useEffect(() => {
     function connectSSE() {
@@ -232,7 +264,7 @@ export default function Dashboard() {
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left: Stadium Map + Zone Cards */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-3 space-y-4">
             <StadiumMap
               zones={zones}
               selectedZoneId={selectedZoneId}
@@ -250,14 +282,25 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Center-Left: Demo Control + Analytics */}
+          <div className="lg:col-span-3 space-y-4">
+            <ManualTrigger
+              zones={zones}
+              onTrigger={handleManualTrigger}
+              isProcessing={isAiLoading}
+            />
+            <AnalyticsPanel events={events} responses={aiResponses} />
+            <MatchTimeline events={events} />
+          </div>
+
           {/* Center: AI Console + Announcements */}
-          <div className="lg:col-span-5 space-y-4">
+          <div className="lg:col-span-4 space-y-4">
             <AnnouncementBar latestAnnouncement={latestAnnouncement} />
             <AIConsole responses={aiResponses} isLoading={isAiLoading} />
           </div>
 
           {/* Right: Alert Feed */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <AlertPanel events={events} />
           </div>
         </div>
