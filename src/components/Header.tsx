@@ -39,8 +39,8 @@ export default function Header() {
               AP
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                ArenaPulse AI
+              <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
+                <span className="gradient-text">ArenaPulse AI</span>
                 <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/20">
                   BETA
                 </span>

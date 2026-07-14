@@ -96,7 +96,7 @@ export default function ManualTrigger({ zones, onTrigger, isProcessing }: Manual
   };
 
   return (
-    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden">
+    <div className="glass-panel">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-800/30 transition-colors"

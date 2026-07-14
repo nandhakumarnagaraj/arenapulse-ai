@@ -36,8 +36,8 @@ export default function AnalyticsPanel({ events, responses }: AnalyticsPanelProp
   };
 
   return (
-    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
+    <div className="glass-panel">
+      <div className="px-4 py-3 border-b premium-divider flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm">📊</span>
           <h2 className="text-sm font-semibold text-white">Analytics</h2>

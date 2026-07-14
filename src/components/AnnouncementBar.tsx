@@ -21,7 +21,7 @@ export default function AnnouncementBar({ latestAnnouncement }: AnnouncementBarP
 
   if (!latestAnnouncement) {
     return (
-      <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-4">
+      <div className="glass-panel p-4">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-lg">📢</span>
           <h3 className="text-sm font-semibold text-white">Public Announcements</h3>

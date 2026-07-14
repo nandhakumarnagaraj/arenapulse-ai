@@ -44,8 +44,8 @@ export default function AlertPanel({ events }: AlertPanelProps) {
   const warningCount = events.filter((e) => e.severity === "WARNING").length;
 
   return (
-    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-slate-700/50">
+    <div className="glass-panel h-full flex flex-col">
+      <div className="px-4 py-3 border-b premium-divider">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-sm">📡</span>

@@ -25,7 +25,7 @@ const statusColors = {
 
 export default function StadiumMap({ zones, selectedZoneId, onZoneClick }: StadiumMapProps) {
   return (
-    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-4">
+    <div className="glass-panel p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-white">Stadium Layout — MetLife</h2>
         <div className="flex items-center gap-3 text-[10px]">

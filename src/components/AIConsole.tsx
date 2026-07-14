@@ -21,8 +21,8 @@ const severityPulse = {
 
 export default function AIConsole({ responses, isLoading }: AIConsoleProps) {
   return (
-    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 overflow-hidden">
-      <div className="px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
+    <div className="glass-panel">
+      <div className="px-4 py-3 border-b premium-divider flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
             <span className="text-[10px] text-white font-black">AI</span>

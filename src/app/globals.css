@@ -3,6 +3,17 @@
 :root {
   --background: #020617;
   --foreground: #e2e8f0;
+
+  /* Premium surface + accent tokens */
+  --panel-bg-top: rgba(255, 255, 255, 0.04);
+  --panel-bg-bottom: rgba(255, 255, 255, 0.012);
+  --panel-border: rgba(148, 163, 184, 0.14);
+  --panel-highlight: rgba(255, 255, 255, 0.06);
+  --panel-shadow: 0 12px 40px -16px rgba(0, 0, 0, 0.7);
+
+  --accent-from: #818cf8; /* indigo */
+  --accent-via: #a855f7;  /* violet */
+  --accent-to: #22d3ee;   /* cyan   */
 }
 
 @theme inline {
@@ -16,6 +27,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+::selection {
+  background: rgba(129, 140, 248, 0.3);
+  color: #fff;
 }
 
 /* Custom scrollbar */
@@ -76,8 +92,73 @@ body {
 
 /* Grid pattern for dashboard background */
 .bg-grid {
-  background-image: 
+  background-image:
     linear-gradient(rgba(51, 65, 85, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(51, 65, 85, 0.05) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* ---- Premium design system ---- */
+
+/* Glass panel: the single source of truth for card surfaces */
+.glass-panel {
+  position: relative;
+  background: linear-gradient(180deg, var(--panel-bg-top), var(--panel-bg-bottom));
+  border: 1px solid var(--panel-border);
+  border-radius: 0.875rem;
+  box-shadow:
+    inset 0 1px 0 0 var(--panel-highlight),
+    var(--panel-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+/* Subtle top highlight line for premium glass edges */
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.18),
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Brand gradient text */
+.gradient-text {
+  background: linear-gradient(
+    100deg,
+    var(--accent-from),
+    var(--accent-via) 55%,
+    var(--accent-to)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Ambient corner glows for the dashboard shell */
+.ambient-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Tightened, premium divider used inside panels */
+.premium-divider {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Tabular figures for live metrics */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }

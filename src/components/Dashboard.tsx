@@ -179,7 +179,30 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 bg-grid">
+    <div className="relative min-h-screen bg-slate-950 bg-grid overflow-hidden">
+      {/* Ambient brand glows */}
+      <div
+        className="ambient-glow"
+        style={{
+          top: "-12%",
+          left: "-6%",
+          width: "42vw",
+          height: "42vw",
+          background: "radial-gradient(circle, rgba(129,140,248,0.22), transparent 70%)",
+        }}
+      />
+      <div
+        className="ambient-glow"
+        style={{
+          bottom: "-18%",
+          right: "-8%",
+          width: "48vw",
+          height: "48vw",
+          background: "radial-gradient(circle, rgba(168,85,247,0.20), transparent 70%)",
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col min-h-screen">
       <Header />
 
       <main className="max-w-[1600px] mx-auto px-4 py-6 space-y-6">
@@ -218,9 +241,9 @@ export default function Dashboard() {
 
         {/* Stats Bar */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-4">
+          <div className="glass-panel p-4">
             <p className="text-[10px] text-slate-400 uppercase tracking-wider">Total Occupancy</p>
-            <p className="text-2xl font-bold text-white mt-1">
+            <p className="text-2xl font-bold text-white mt-1 tnum">
               {totalOccupancy.toLocaleString()}
               <span className="text-sm text-slate-500 font-normal ml-1">
                 /{totalCapacity.toLocaleString()}
@@ -235,25 +258,25 @@ export default function Dashboard() {
               />
             </div>
           </div>
-          <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-4">
+          <div className="glass-panel p-4">
             <p className="text-[10px] text-slate-400 uppercase tracking-wider">Avg Wait Time</p>
-            <p className={`text-2xl font-bold mt-1 ${avgWaitTime > 15 ? "text-red-400" : avgWaitTime > 8 ? "text-amber-400" : "text-emerald-400"}`}>
+              <p className={`text-2xl font-bold mt-1 tnum ${avgWaitTime > 15 ? "text-red-400" : avgWaitTime > 8 ? "text-amber-400" : "text-emerald-400"}`}>
               {avgWaitTime}<span className="text-sm font-normal ml-1">min</span>
             </p>
           </div>
-          <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-4">
+          <div className="glass-panel p-4">
             <p className="text-[10px] text-slate-400 uppercase tracking-wider">Critical Zones</p>
             <div className="flex items-baseline gap-2 mt-1">
-              <p className={`text-2xl font-bold ${criticalZones > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                <p className={`text-2xl font-bold tnum ${criticalZones > 0 ? "text-red-400" : "text-emerald-400"}`}>
                 {criticalZones}
               </p>
               <p className="text-xs text-slate-500">of {zones.length}</p>
             </div>
           </div>
-          <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-4">
+          <div className="glass-panel p-4">
             <p className="text-[10px] text-slate-400 uppercase tracking-wider">AI Responses</p>
             <div className="flex items-baseline gap-2 mt-1">
-              <p className="text-2xl font-bold text-purple-400">{aiResponses.length}</p>
+                <p className="text-2xl font-bold text-purple-400 tnum">{aiResponses.length}</p>
               {isAiLoading && (
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
@@ -315,6 +338,7 @@ export default function Dashboard() {
           <span>FIFA World Cup 2026 | Powered by Google Gemini</span>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
