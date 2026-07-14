@@ -203,7 +203,7 @@ export default function Dashboard() {
       <div className="relative z-10 flex flex-col min-h-screen">
       <Header />
 
-      <main className="max-w-[1600px] mx-auto px-4 py-6 space-y-6">
+      <main id="main-content" className="max-w-[1600px] mx-auto px-4 py-6 space-y-6" role="main" aria-label="Stadium operations dashboard">
         {/* Status Bar */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-4">

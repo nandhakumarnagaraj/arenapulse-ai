@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { StadiumZone } from "@/lib/types";
 
 interface ZoneCardProps {
@@ -35,7 +36,7 @@ const statusConfig = {
   },
 };
 
-export default function ZoneCard({ zone, isSelected, onClick }: ZoneCardProps) {
+export default React.memo(function ZoneCard({ zone, isSelected, onClick }: ZoneCardProps) {
   const config = statusConfig[zone.status];
   const occupancyPercent = Math.round(
     (zone.currentOccupancy / zone.capacity) * 100
@@ -112,4 +113,4 @@ export default function ZoneCard({ zone, isSelected, onClick }: ZoneCardProps) {
       </div>
     </button>
   );
-}
+});
